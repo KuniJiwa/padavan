@@ -1,9 +1,10 @@
-name: Build Firmware
+# Padavan K2P build for kernel 4.4
+# Based on tsl0922's Padavan repository 
+# Merged with TurBoTse's modifications
+
+name: Build K2P
 
 on:
-  push:
-    branches:
-      - "*"
   workflow_dispatch:
 
 jobs:
@@ -20,14 +21,14 @@ jobs:
         toolchain: [mipsel-linux-musl]
 
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 1
-      - uses: hendrikmuhs/ccache-action@main
+      - uses: hendrikmuhs/ccache-action@v1
         with:
           key: ${{ matrix.target }}-${{ matrix.toolchain }}
 
-      - uses: actions/setup-go@main
+      - uses: actions/setup-go@v6
         with:
           go-version: '1.24.x'
           check-latest: true
@@ -42,23 +43,24 @@ jobs:
           echo "BUILD_DATE=$(TZ='Asia/Shanghai' date +%Y%m%d)" >> $GITHUB_ENV
 
       - name: Build Firmware
-        run: |
-          make ${{ matrix.target }} TOOLCHAIN=${{ matrix.toolchain }}
+        run: make ${{ matrix.target }} TOOLCHAIN=${{ matrix.toolchain }}
 
-      - uses: actions/upload-artifact@main
+      - name: Extract Release Body
+        run: |
+          awk '/固件完整标识：/,/密码：/' trunk/images/image_build.log | grep -v "Build completed at" > release_body.txt
+
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.target }}-${{ matrix.toolchain }}-${{ env.BUILD_DATE }}
           path: trunk/images/*.trx
 
-      - uses: ncipollo/release-action@main
+      - uses: ncipollo/release-action@v1
         with:
           commit: ${{ github.sha }}
-          tag: ${{ env.BUILD_DATE }}
+          tag: ${{ env.BUILD_DATE }}-k2p
+          name: Padavan K2P Build ${{ env.BUILD_DATE }}
           artifacts: trunk/images/*.trx
           allowUpdates: true
-          omitBodyDuringUpdate: true
-
-      - uses: Mattraks/delete-workflow-runs@main
-        with:
-          retain_days: 0
-          keep_minimum_runs: 1
+          omitBodyDuringUpdate: false
+          bodyFile: release_body.txt
+          generateReleaseNotes: false

@@ -1,4 +1,6 @@
-# Build TurBoTse's Padavan 4.4 Kernel
+# Build Padavan 4.4 Kernel firmware
+# Based on tsl0922's Padavan repository 
+# Merged with TurBoTse's modifications
 
 name: Custom Build
 
@@ -6,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Select router device"
+        description: "选择路由器型号"
         required: true
         type: choice
         options:
@@ -68,48 +70,44 @@ on:
           - ZTT-RX6000
         default: K2P
       toolchain:
-        description: "Select compilation toolchain"
+        description: "选择编译工具链"
         required: true
         type: choice
         options:
           - mipsel-linux-musl
           - mipsel-linux-uclibc
         default: mipsel-linux-musl
-      cpufreq:
-        description: "Enable CPU Overclocking"
-        type: boolean
-        default: false
       mt7621_oc:
-        description: "1000Mhz=0x312 1100Mhz=0x362 1120Mhz=0x372 1200Mhz=0x3B2"
+        description: "CPU频率：0x312=1000MHz、0x362=1100MHz、0x372=1120MHz、0x3B2=1200MHz"
         type: choice
-        options: [ '0x312', '0x362', '0x372', '0x3B2' ]
-      plugins:
-        description: 'Plugin JSON, e.g. {"shadowsocks":"y","xray":"n"}'
+        options:
+          - '0x312'
+          - '0x362'
+          - '0x372'
+          - '0x3B2'
+        default: '0x312'
+      plugin_multi:
+        description: '插件多选，英文逗号分隔无空格；可选：shadowsocks,v2ray,xray,trojan,ssobfs,smartdns,vlmcsd,ttyd,iperf3'
         required: true
         type: string
-        default: '{"shadowsocks":"y","v2ray":"n","xray":"y","trojan":"y","ssobfs":"y","smartdns":"y","vlmcsd":"y","ttyd":"n","iperf3":"n"}'
+        default: shadowsocks,xray,trojan,ssobfs,smartdns,vlmcsd
       customization:
-        description: 'Customization JSON'
+        description: '自定义配置JSON'
         required: true
         type: string
         default: '{"lanip":"192.168.2.1","signaccount":"admin","signpassword":"admin","wifi2gssid":"Padavan","wifi2gpsk":"1234567890","wifi5gssid":"Padavan-5G","wifi5gpsk":"1234567890"}'
       nanoversion:
-        description: "Build Nano Version"
+        description: "编译Nano精简版本"
         type: boolean
         default: false
       release:
-        description: "Upload to GitHub Release"
-        type: boolean
-        default: true
-      oldworkflow:
-        description: "Delete Old Workflows"
+        description: "上传到GitHub Release"
         type: boolean
         default: true
 
 env:
-  FIRMWARE_AUTHOR: TurBoTse
   TOOLCHAIN: ${{ inputs.toolchain }}
-  TOOLCHAIN_URL: https://github.com/TurBoTse/padavan/releases/download/toolchain/${{ inputs.toolchain }}.tar.xz
+  TOOLCHAIN_URL: https://github.com/KuniJiwa/padavan/releases/download/toolchain/${{ inputs.toolchain }}.tar.xz
   CONFIGFILE: trunk/configs/templates/${{ inputs.target }}.config
 
 jobs:
@@ -118,12 +116,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
 
     steps:
       - uses: actions/checkout@main
         with:
           fetch-depth: 1
+
       - uses: hendrikmuhs/ccache-action@main
         with:
           key: ${{ inputs.target }}-${{ inputs.toolchain }}
@@ -144,8 +142,23 @@ jobs:
 
       - name: Validate Input JSON
         run: |
-          jq empty <<< '${{ inputs.plugins }}' || { echo "❌ Invalid plugins JSON"; exit 1; }
-          jq empty <<< '${{ inputs.customization }}' || { echo "❌ Invalid customization JSON"; exit 1; }
+          clean(){ echo "$1" | tr -d '\r\n' | sed 's/ //g'; }
+          MULTI_RAW=$(clean '${{ inputs.plugin_multi }}')
+          CUSTOM_RAW=$(clean '${{ inputs.customization }}')
+          ALL_PLUGIN=(shadowsocks v2ray xray trojan ssobfs smartdns vlmcsd ttyd iperf3)
+          PLUGIN_JSON=$(jq -n '{}')
+          for name in "${ALL_PLUGIN[@]}";do
+            PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq --arg k "$name" '.[$k]="n"')
+          done
+          if [[ -n "$MULTI_RAW" ]];then
+            while read -r item;do
+              if [[ -n "$item" && " ${ALL_PLUGIN[@]} " =~ " $item " ]];then
+                PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq --arg k "$item" '.[$k]="y"')
+              fi
+            done < <(echo "$MULTI_RAW" | tr ',' '\n' | sort -u)
+          fi
+          echo "PLUGIN_JSON=$(echo "$PLUGIN_JSON" | jq -c .)" >> $GITHUB_ENV
+          jq empty <<< "$CUSTOM_RAW" || { echo "❌ 无效的自定义JSON"; exit 1; }
 
       - name: Export Customization & Plugin Flags
         run: |
@@ -156,15 +169,13 @@ jobs:
               echo "${PREFIX}${k^^}=$v" >> $GITHUB_ENV
             done
           }
-
           export_json '${{ inputs.customization }}' ""
+          PLUGIN_SRC="$PLUGIN_JSON"
           if [ "${{ inputs.nanoversion }}" = "true" ]; then
-            echo "⚠️ Nano version — all plugins disabled."
-            echo '${{ inputs.plugins }}' | jq 'with_entries(.value="n")' > plugins_fixed.json
-          else
-            echo '${{ inputs.plugins }}' > plugins_fixed.json
+            echo "⚠️ Nano版本 — 所有插件已禁用。"
+            PLUGIN_SRC=$(echo "$PLUGIN_SRC" | jq 'with_entries(.value="n")')
           fi
-          export_json "$(cat plugins_fixed.json)" "PLUGIN_"
+          export_json "$PLUGIN_SRC" "PLUGIN_"
 
       - name: Apply Configurations
         run: |
@@ -172,15 +183,11 @@ jobs:
           bash trunk/custom/scripts/setip.sh "$LANIP" trunk/user/shared/src/defaults.h trunk/user/www/dict/CN.dict
           bash trunk/custom/scripts/setaccount.sh "$SIGNACCOUNT" "$SIGNPASSWORD" trunk/user/shared/src/defaults.h
           bash trunk/custom/scripts/setwifi.sh "$WIFI2GSSID" "$WIFI2GPSK" "$WIFI5GSSID" "$WIFI5GPSK" trunk/user/shared/src/defaults.h
-
           for key in $(env | grep '^PLUGIN_' | cut -d= -f1); do
             echo "CONFIG_FIRMWARE_INCLUDE_${key#PLUGIN_}=${!key}" >> "$CONFIGFILE"
           done
-
-          if [ "${{ inputs.cpufreq }}" = "true" ]; then
-            echo "CONFIG_FIRMWARE_INCLUDE_OC=y" >> "$CONFIGFILE"
-            echo "CONFIG_FIRMWARE_MT7621_OC=${{ inputs.mt7621_oc }}" >> "$CONFIGFILE"
-          fi
+          echo "CONFIG_FIRMWARE_INCLUDE_OC=y" >> "$CONFIGFILE"
+          echo "CONFIG_FIRMWARE_MT7621_OC=${{ inputs.mt7621_oc }}" >> "$CONFIGFILE"
 
       - name: Apply Nano Optimization
         if: ${{ inputs.nanoversion }}
@@ -203,9 +210,9 @@ jobs:
         run: |
           make ${{ inputs.target }} TOOLCHAIN=${{ inputs.toolchain }}
           mkdir -p trunk/output
-          base="${FIRMWARE_AUTHOR}-${{ inputs.target }}-4.4-${{ inputs.toolchain }}"
+          base="${{ inputs.target }}-4.4-${{ inputs.toolchain }}"
           [ "${{ inputs.nanoversion }}" = "true" ] && base="${base}-nano"
-          [ "${{ inputs.cpufreq }}" = "true" ] && base="${base}-cpufreq-${{ inputs.mt7621_oc }}"
+          base="${base}-cpufreq-${{ inputs.mt7621_oc }}"
           base="${base}-${BUILD_DATE}"
           i=1
           for f in trunk/images/*.trx; do
@@ -223,21 +230,17 @@ jobs:
       - uses: softprops/action-gh-release@master
         if: ${{ inputs.release }}
         with:
-          tag_name: ${{ env.BUILD_DATE }}
-          name: ${{ env.BUILD_DATE }}
+          tag_name: ${{ env.BUILD_DATE }}-padavan
+          name: Padavan Build ${{ env.BUILD_DATE }}
+          overwrite_tags: true
+          append_body: false
           body: |
-            Build Summary:
-            - Date: ${{ env.BUILD_DATE }}
-            - Target: ${{ inputs.target }}
-            - Toolchain: ${{ inputs.toolchain }}
-            - Nano: ${{ inputs.nanoversion }}
-            - CPU OC: ${{ inputs.cpufreq }} (${{ inputs.mt7621_oc }})
-            - Plugins: ${{ inputs.plugins }}
-            - Custom: ${{ inputs.customization }}
+            构建摘要：
+            - 日期：${{ env.BUILD_DATE }}
+            - 型号：${{ inputs.target }}
+            - 工具链：${{ inputs.toolchain }}
+            - Nano精简版：${{ inputs.nanoversion }}
+            - CPU超频档位：${{ inputs.mt7621_oc }}
+            - 插件配置：${{ env.PLUGIN_JSON }}
+            - 自定义配置：${{ inputs.customization }}
           files: trunk/output/*.trx
-
-      - uses: Mattraks/delete-workflow-runs@main
-        if: ${{ inputs.oldworkflow }}
-        with:
-          retain_days: 0
-          keep_minimum_runs: 1

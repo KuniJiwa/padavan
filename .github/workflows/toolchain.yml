@@ -1,3 +1,7 @@
+# Build Padavan toolchain for MIPS routers 
+# Based on tsl0922's Padavan repository 
+# Merged with TurBoTse's modifications
+
 name: Build Toolchain
 
 on:
@@ -12,14 +16,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [mipsel-linux-musl, mipsel-linux-uclibc]
+        target:
+          - mipsel-linux-musl
+          - mipsel-linux-uclibc
 
     steps:
       - uses: actions/checkout@main
 
       - name: Install Build Dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y bison flex gperf help2man libtool-bin texinfo
+          sudo apt-get update
+          sudo apt-get install -y \
+            bison flex gperf help2man texinfo \
+            libtool-bin autoconf automake autopoint gettext \
+            liblzma-dev libltdl-dev liblzo2-dev ccache
 
       - name: Build and Package
         run: |
@@ -38,4 +48,13 @@ jobs:
           tag: toolchain
           artifacts: toolchain/${{ matrix.target }}.tar.xz
           allowUpdates: true
-          omitBodyDuringUpdate: true
+          omitBodyDuringUpdate: false
+          body: |
+            Padavan 工具链
+            目标平台：mipsel-linux-musl / mipsel-linux-uclibc
+            编译器：GCC 13.3.0
+            链接器：Binutils 2.44
+            调试器：GDB 16.3
+            C库：musl 1.2.5 / uClibc-ng 1.0.51
+            构建系统：crosstool-ng 1.28.0
+            适用设备：MT7621 / K2P 等 MIPS 路由器
