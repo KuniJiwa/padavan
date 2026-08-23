@@ -1,12 +1,12 @@
 include $(ROOTDIR)/rules.mk
 
 PKG_NAME:=AdGuardHome
-PKG_VERSION:=0.107.48
+PKG_VERSION:=0.107.77
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/AdguardTeam/AdGuardHome/archive/refs/tags/
 PKG_SOURCE_URL_FILE:=v$(PKG_VERSION).tar.gz
-PKG_HASH:=189afe8ccc4efd229c3554d812f590cc8727e966c05a6129d444c88a905b83a1
+PKG_HASH:=1db8e53238c3ba8aecfbe0b68ba6197435dae19fd3512c70c68d90b7239b7464
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -17,12 +17,12 @@ LD_FLAGS:= \
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); \
 		NODE_OPTIONS=--openssl-legacy-provider make js-deps js-build; \
-		zip -r embed.zip build; \
 	)
 endef
 
 define Build/Compile
 	(cd $(PKG_BUILD_DIR); \
+		zip -r -q -X embed.zip build; \
 		GOOS=linux GOARCH=mipsle CGO_ENABLED=0 \
 		go build -v -o AdGuardHome \
 		-trimpath -ldflags "$(LD_FLAGS) -s -w -buildid=" \
