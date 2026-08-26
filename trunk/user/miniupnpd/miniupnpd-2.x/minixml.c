@@ -62,6 +62,9 @@ static int parseatt(struct xmlparser * p)
 				if(p->xml >= p->xmlend)
 					return -1;
 			}
+			/* p->xml points now to the character right after the '=' */
+			if(p->xml >= p->xmlend)
+				return -1;
 			while(IS_WHITE_SPACE(*p->xml))
 			{
 				p->xml++;
@@ -141,6 +144,8 @@ static void parseelt(struct xmlparser * p)
 				{
 					i = 0;
 					elementname = ++p->xml;
+					if (p->xml >= p->xmlend)
+						return;
 				}
 			}
 			if(i>0)
@@ -161,7 +166,9 @@ static void parseelt(struct xmlparser * p)
 						if (p->xml >= p->xmlend)
 							return;
 					}
-					if(memcmp(p->xml, "<![CDATA[", 9) == 0)
+					/* CDATA is at least 9 + 3 characters: <![CDATA[ ]]> */
+					if((p->xmlend >= (p->xml + (9 + 3))) &&
+					   (memcmp(p->xml, "<![CDATA[", 9) == 0))
 					{
 						/* CDATA handling */
 						p->xml += 9;
@@ -190,7 +197,8 @@ static void parseelt(struct xmlparser * p)
 							if ((p->xml + 1) >= p->xmlend)
 								return;
 						}
-						if(i>0 && p->datafunc && *(p->xml + 1) == '/')
+						if(i>0 && p->datafunc && (p->xml + 1) < p->xmlend &&
+						   *(p->xml + 1) == '/')
 							p->datafunc(p->data, data, i);
 					}
 				}
@@ -225,5 +233,4 @@ void parsexml(struct xmlparser * parser)
 	parser->xmlend = parser->xmlstart + parser->xmlsize;
 	parseelt(parser);
 }
-
 
