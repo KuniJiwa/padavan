@@ -284,6 +284,18 @@ image: romfs
 		echo "  👤 Username     : $(or $(SIGNACCOUNT),admin)"; \
 		echo "  🔐 Password     : $(or $(SIGNPASSWORD),admin)"; \
 		echo ""; \
+		echo "# Padavan 固件通用信息"; \
+		echo "## 版本基线"; \
+		echo "固件完整标识：$(FIRMWARE_KERNEL_VER)-$(FIRMWARE_BUILDS_VER).$(FIRMWARE_BUILDS_REV)"; \
+		echo "内核版本：$(FIRMWARE_KERNEL_VER)"; \
+		echo "编译基线：$(FIRMWARE_BUILDS_VER)-$(FIRMWARE_BUILDS_REV)"; \
+		echo "交叉编译工具链：$(CONFIG_CROSS_COMPILE)"; \
+		echo ""; \
+		echo "📡 默认登录信息"; \
+		echo "  🌐 管理地址     : $(or $(LANIP),192.168.2.1)"; \
+		echo "  👤 账号         : $(or $(SIGNACCOUNT),admin)"; \
+		echo "  🔐 密码         : $(or $(SIGNPASSWORD),admin)"; \
+		echo ""; \
 		echo "\033[1;32m✅  Build completed at: $(shell date)\033[0m"; \
 		echo ""; \
 	} | tee -a $(IMAGEDIR)/image_build.log 2>/dev/null || true
