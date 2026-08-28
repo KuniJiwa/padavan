@@ -68,7 +68,6 @@ $j(document).ready(function(){
 var m_list = [<% get_nvram_list("SmartdnsConf", "SdnsList"); %>];
 var mlist_ifield = 6;
 if(m_list.length > 0){
-	var m_list_ifield = m_list[0].length;
 	for (var i = 0; i < m_list.length; i++) {
 		m_list[i][mlist_ifield] = i;
 	}
@@ -94,16 +93,18 @@ function applyRule(){
 }
 var arrHashes = ["cfg", "exp", "sec", "dns", "cou"];
 function showTab(curHash){
-	var obj = $('tab_sm_'+curHash.slice(1));
-	if (obj == null || obj.style.display == 'none')
+	var targetId = "tab_sm_" + curHash.replace('#','');
+	var obj = $(targetId);
+	if (!obj || obj.style.display == 'none')
 		curHash = '#cfg';
 	for(var i = 0; i < arrHashes.length; i++){
-		if(curHash == ('#'+arrHashes[i])){
-			$j('#tab_sm_'+arrHashes[i]).parents('li').addClass('active');
-			$j('#wnd_sm_'+arrHashes[i]).show();
+		var hashKey = arrHashes[i];
+		if(curHash == ('#'+hashKey)){
+			$j('#tab_sm_'+hashKey).parents('li').addClass('active');
+			$j('#wnd_sm_'+hashKey).show();
 		}else{
-			$j('#wnd_sm_'+arrHashes[i]).hide();
-			$j('#tab_sm_'+arrHashes[i]).parents('li').removeClass('active');
+			$j('#wnd_sm_'+hashKey).hide();
+			$j('#tab_sm_'+hashKey).parents('li').removeClass('active');
 		}
 	}
 	window.location.hash = curHash;
@@ -129,33 +130,33 @@ function fill_status(status_code){
 function markGroupRULES(o, c, b) {
 	document.form.group_id.value = "SdnsList";
 	if(b == " Add "){
+		var ipVal = document.form.sdnss_ip_x_0.value.trim();
+		var nameVal = document.form.sdnss_name_x_0.value.trim();
 		if (document.form.sdnss_staticnum_x_0.value >= c){
 			alert("<#JS_itemlimit1#> " + c + " <#JS_itemlimit2#>");
 			return false;
-		}else if (document.form.sdnss_ip_x_0.value==""){
+		}else if (ipVal==""){
 			alert("<#JS_fieldblank#>");
 			document.form.sdnss_ip_x_0.focus();
 			document.form.sdnss_ip_x_0.select();
 			return false;
-		}else if(document.form.sdnss_name_x_0.value==""){
+		}else if(nameVal==""){
 			alert("<#JS_fieldblank#>");
-			document.form.sdnss_name_0.focus();
-			document.form.sdnss_name_0.select();
+			document.form.sdnss_name_x_0.focus();
+			document.form.sdnss_name_x_0.select();
 			return false;
 		}else{
-			for(i=0; i<m_list.length; i++){
-				if(document.form.sdnss_ip_x_0.value==m_list[i][2]) {
-				if(document.form.sdnss_type_x_0.value==m_list[i][4]) {
+			for(var i=0; i<m_list.length; i++){
+				if(ipVal == m_list[i][2] && document.form.sdnss_type_x_0.value==m_list[i][4]) {
 					alert('<#JS_duplicate#>' + ' (' + m_list[i][2] + ')' );
 					document.form.sdnss_ip_x_0.focus();
 					document.form.sdnss_ip_x_0.select();
 					return false;
-					}
 				}
-				if(document.form.sdnss_name_x_0.value.value==m_list[i][1]) {
+				if(nameVal == m_list[i][1]) {
 					alert('<#JS_duplicate#>' + ' (' + m_list[i][1] + ')' );
-					document.form.sdnss_name_0.focus();
-					document.form.sdnss_name_0.select();
+					document.form.sdnss_name_x_0.focus();
+					document.form.sdnss_name_x_0.select();
 					return false;
 				}
 			}
@@ -194,7 +195,7 @@ function showMRULESList(){
 		code +='<td width="10%">&nbsp;' + m_list[i][3] + '</td>';
 		code +='<td width="10%">&nbsp;' + m_list[i][4] + '</td>';
 		code +='<td width="15%">&nbsp;' + ipc + '</td>';
-		code +='<center><td width="5%" style="text-align: center;"><input type="checkbox" name="SdnsList_s" value="' + m_list[i][mlist_ifield] + '" onClick="changeBgColorrl(this,' + i + ');" id="check' + m_list[i][mlist_ifield] + '"></td></center>';
+		code +='<td width="5%" style="text-align:center;"><input type="checkbox" name="SdnsList_s" value="' + m_list[i][mlist_ifield] + '" onClick="changeBgColorrl(this,' + i + ');" id="check' + m_list[i][mlist_ifield] + '"></td>';
 		code +='</tr>';
 	    }
 		code += '<tr>';
@@ -941,6 +942,7 @@ function showMRULESList(){
                                                     <input type="radio" value="1" name="sdns_coredump" id="sdns_coredump_1" <% nvram_match_x("", "sdns_coredump", "1", "checked"); %>><#checkbox_Yes#>
                                                     <input type="radio" value="0" name="sdns_coredump" id="sdns_coredump_0" <% nvram_match_x("", "sdns_coredump", "0", "checked"); %>><#checkbox_No#>
                                                 </div>
+												<div><span style="color:#888;">保存到 /tmp/smartdns-core/core，最大 4 MiB，重启后清除</span></div>
                                             </td>
                                         </tr>
 										</table>
