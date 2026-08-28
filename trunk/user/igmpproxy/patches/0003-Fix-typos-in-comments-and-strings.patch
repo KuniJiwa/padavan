@@ -1,0 +1,259 @@
+From 059516b9b964e95d301059bfb552655b0aabdd35 Mon Sep 17 00:00:00 2001
+From: Jan Klemkow <j.klemkow@wemelug.de>
+Date: Thu, 17 Apr 2025 22:12:20 +0200
+Subject: [PATCH] Fix typos in comments.
+
+---
+ src/callout.c    |  2 +-
+ src/ifvc.c       | 10 +++++-----
+ src/igmpproxy.c  | 10 +++++-----
+ src/igmpproxy.h  |  2 +-
+ src/mroute-api.c |  4 ++--
+ src/request.c    | 12 ++++++------
+ src/rttable.c    | 10 +++++-----
+ 7 files changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/src/callout.c b/src/callout.c
+index c49da6cf..88bcfde5 100644
+--- a/src/callout.c
++++ b/src/callout.c
+@@ -173,7 +173,7 @@ int timer_setTimer(int delay, timer_f action, void *data) {
+                 debugQueue();
+                 return node->id;
+             } else {
+-                // Continur to check nodes.
++                // Continue to check nodes.
+                 delay -= ptr->time; node->time = delay;
+                 prev = ptr;
+                 ptr = ptr->next;
+diff --git a/src/ifvc.c b/src/ifvc.c
+index a79f9036..af1fcb7d 100644
+--- a/src/ifvc.c
++++ b/src/ifvc.c
+@@ -111,7 +111,7 @@ void rebuildIfVc () {
+             continue;
+         }
+ 
+-        // Get the interface adress...
++        // Get the interface address...
+         Dp->InAdr.s_addr = s_addr_from_sockaddr(&IfPt->ifr_addr);
+         addr = Dp->InAdr.s_addr;
+ 
+@@ -161,7 +161,7 @@ void rebuildIfVc () {
+             Dp->state         = IF_STATE_DOWNSTREAM;
+         }
+ 
+-        // when IF become enabeld from downstream, addVIF to enable its VIF
++        // when IF become enabled from downstream, addVIF to enable its VIF
+         if (Dp->state == IF_STATE_HIDDEN) {
+             my_log(LOG_NOTICE, 0, "%s [Hidden -> Downstream]", Dp->Name);
+             Dp->state = IF_STATE_DOWNSTREAM;
+@@ -267,7 +267,7 @@ void buildIfVc(void) {
+                 continue;
+             }
+ 
+-            // Get the interface adress...
++            // Get the interface address...
+             IfDescEp->InAdr.s_addr = s_addr_from_sockaddr(&IfPt->ifr_addr);
+             addr = IfDescEp->InAdr.s_addr;
+ 
+@@ -367,7 +367,7 @@ struct IfDesc *getIfByIx( unsigned Ix ) {
+ 
+ /**
+ *   Returns a pointer to the IfDesc whose subnet matches
+-*   the supplied IP adress. The IP must match a interfaces
++*   the supplied IP address. The IP must match a interfaces
+ *   subnet, or any configured allowed subnet on a interface.
+ */
+ struct IfDesc *getIfByAddress( uint32_t ipaddr ) {
+@@ -393,7 +393,7 @@ struct IfDesc *getIfByAddress( uint32_t ipaddr ) {
+ 
+ /**
+ *   Returns a pointer to the IfDesc whose subnet matches
+-*   the supplied IP adress. The IP must match a interfaces
++*   the supplied IP address. The IP must match a interfaces
+ *   subnet, or any configured allowed subnet on a interface.
+ */
+ struct IfDesc *getIfByVifIndex( unsigned vifindex ) {
+diff --git a/src/igmpproxy.c b/src/igmpproxy.c
+index 62e986d9..125429d9 100644
+--- a/src/igmpproxy.c
++++ b/src/igmpproxy.c
+@@ -68,7 +68,7 @@ static int sighandled = 0;
+ #define GOT_SIGUSR1 0x04
+ #define GOT_SIGUSR2 0x08
+ 
+-// Holds the indeces of the upstream IF...
++// Holds the indices of the upstream IF...
+ int     upStreamIfIdx[MAX_UPS_VIFS];
+ 
+ /**
+@@ -118,7 +118,7 @@ int main( int ArgCn, char *ArgVc[] ) {
+     }
+     char *configFilePath = ArgVc[optind];
+ 
+-    // Chech that we are root
++    // Check that we are root
+     if (geteuid() != 0) {
+        fprintf(stderr, "igmpproxy: must be root\n");
+        exit(1);
+@@ -137,7 +137,7 @@ int main( int ArgCn, char *ArgVc[] ) {
+             break;
+         }
+ 
+-        // Initializes the deamon.
++        // Initializes the daemon.
+         if ( !igmpProxyInit() ) {
+             my_log(LOG_ERR, 0, "Unable to initialize IGMPproxy.");
+             break;
+@@ -243,7 +243,7 @@ int igmpProxyInit(void) {
+                 if(Dp->state == IF_STATE_UPSTREAM) {
+                     if (upsvifcount < MAX_UPS_VIFS -1)
+                     {
+-                        my_log(LOG_DEBUG, 0, "Found upstrem IF #%d, will assing as upstream Vif %d",
++                        my_log(LOG_DEBUG, 0, "Found upstrem IF #%d, will assign as upstream Vif %d",
+                             upsvifcount, Ix);
+                         upStreamIfIdx[upsvifcount++] = Ix;
+                     } else {
+@@ -297,7 +297,7 @@ void igmpProxyRun(void) {
+     fd_set  ReadFDS;
+     socklen_t dummy = 0;
+     struct  timespec  curtime, lasttime, difftime, tv;
+-    // The timeout is a pointer in order to set it to NULL if nessecary.
++    // The timeout is a pointer in order to set it to NULL if necessary.
+     struct  timespec  *timeout = &tv;
+ 
+     // Initialize timer vars
+diff --git a/src/igmpproxy.h b/src/igmpproxy.h
+index b8f46a35..bd1e4e62 100644
+--- a/src/igmpproxy.h
++++ b/src/igmpproxy.h
+@@ -187,7 +187,7 @@ struct Config {
+     char                user[LOGIN_NAME_MAX];
+ };
+ 
+-// Holds the indeces of the upstream IF...
++// Holds the indices of the upstream IF...
+ extern int upStreamIfIdx[MAX_UPS_VIFS];
+ 
+ /* ifvc.c
+diff --git a/src/mroute-api.c b/src/mroute-api.c
+index 6ccfe2c5..a1124ba6 100644
+--- a/src/mroute-api.c
++++ b/src/mroute-api.c
+@@ -73,7 +73,7 @@ int enableMRouter(void)
+ }
+ 
+ /*
+-** Diable the mrouted API and relases by this the lock.
++** Disable the mrouted API and releases by this the lock.
+ **
+ */
+ void disableMRouter(void)
+@@ -242,7 +242,7 @@ int delMRoute( struct MRouteDesc *Dp )
+ /*
+ ** Returns for the virtual interface index for '*IfDp'
+ **
+-** returns: - the vitrual interface index if the interface is registered
++** returns: - the virtual interface index if the interface is registered
+ **          - -1 if no virtual interface exists for the interface
+ **
+ */
+diff --git a/src/request.c b/src/request.c
+index 5f3783d8..316d5c16 100644
+--- a/src/request.c
++++ b/src/request.c
+@@ -34,7 +34,7 @@
+ /**
+ *   request.c
+ *
+-*   Functions for recieveing and processing IGMP requests.
++*   Functions for receiving and processing IGMP requests.
+ *
+ */
+ 
+@@ -57,7 +57,7 @@ typedef struct {
+ void acceptGroupReport(uint32_t src, uint32_t group) {
+     struct IfDesc  *sourceVif;
+ 
+-    // Sanitycheck the group adress...
++    // Sanitycheck the group address...
+     if(!IN_MULTICAST( ntohl(group) )) {
+         my_log(LOG_WARNING, 0, "The group address %s is not a valid Multicast group.",
+             inetFmt(group, s1));
+@@ -112,13 +112,13 @@ void acceptGroupReport(uint32_t src, uint32_t group) {
+         my_log(LOG_INFO, 0, "The group address %s may not be requested from this interface. Ignoring.", inetFmt(group, s1));
+     } else {
+         // Log the state of the interface the report was received on.
+-        my_log(LOG_INFO, 0, "Mebership report was received on %s. Ignoring.",
++        my_log(LOG_INFO, 0, "Membership report was received on %s. Ignoring.",
+             sourceVif->state==IF_STATE_UPSTREAM?"the upstream interface":"a disabled interface");
+     }
+ }
+ 
+ /**
+-*   Recieves and handles a group leave message.
++*   Receives and handles a group leave message.
+ */
+ void acceptLeaveMessage(uint32_t src, uint32_t group) {
+     struct IfDesc   *sourceVif;
+@@ -127,7 +127,7 @@ void acceptLeaveMessage(uint32_t src, uint32_t group) {
+         "Got leave message from %s to %s. Starting last member detection.",
+         inetFmt(src, s1), inetFmt(group, s2));
+ 
+-    // Sanitycheck the group adress...
++    // Sanitycheck the group address...
+     if(!IN_MULTICAST( ntohl(group) )) {
+         my_log(LOG_WARNING, 0, "The group address %s is not a valid Multicast group.",
+             inetFmt(group, s1));
+@@ -151,7 +151,7 @@ void acceptLeaveMessage(uint32_t src, uint32_t group) {
+         // Tell the route table that we are checking for remaining members...
+         setRouteLastMemberMode(group, src);
+ 
+-        // Call the group spesific membership querier...
++        // Call the group specific membership querier...
+         gvDesc->group = group;
+         // gvDesc->vifAddr = sourceVif->InAdr.s_addr;
+         gvDesc->started = 0;
+diff --git a/src/rttable.c b/src/rttable.c
+index bcafa3fe..0fe98f22 100644
+--- a/src/rttable.c
++++ b/src/rttable.c
+@@ -49,8 +49,8 @@ struct RouteTable {
+     struct RouteTable   *nextroute;     // Pointer to the next group in line.
+     struct RouteTable   *prevroute;     // Pointer to the previous group in line.
+     uint32_t            group;          // The group to route
+-    uint32_t            originAddrs[MAX_ORIGINS]; // The origin adresses (only set on activated routes)
+-    uint32_t            vifBits;        // Bits representing recieving VIFs.
++    uint32_t            originAddrs[MAX_ORIGINS]; // The origin addresses (only set on activated routes)
++    uint32_t            vifBits;        // Bits representing receiving VIFs.
+ 
+     // Keeps the upstream membership state...
+     short               upstrState;     // Upstream membership state.
+@@ -59,7 +59,7 @@ struct RouteTable {
+     // These parameters contain aging details.
+     uint32_t            ageVifBits;     // Bits representing aging VIFs.
+     int                 ageValue;       // Downcounter for death.
+-    int                 ageActivity;    // Records any acitivity that notes there are still listeners.
++    int                 ageActivity;    // Records any activity that notes there are still listeners.
+ 
+     // Keeps downstream hosts information
+     uint32_t            downstreamHostsHashSeed;
+@@ -157,7 +157,7 @@ static void sendJoinLeaveUpstream(struct RouteTable* route, int join) {
+                 my_log(LOG_ERR, 0 ,"FATAL: Unable to get Upstream IF.");
+             }
+ 
+-            // Check if there is a black- or whitelist for the upstram VIF
++            // Check if there is a black- or whitelist for the upstream VIF
+             if (upstrIf->allowedgroups != NULL) {
+                 bool                 allow_list = false;
+                 struct SubnetList   *match = NULL;
+@@ -274,7 +274,7 @@ int insertRoute(uint32_t group, int ifx, uint32_t src) {
+     struct Config *conf = getCommonConfig();
+     struct RouteTable*  croute;
+ 
+-    // Sanitycheck the group adress...
++    // Sanitycheck the group address...
+     if( ! IN_MULTICAST( ntohl(group) )) {
+         my_log(LOG_WARNING, 0, "The group address %s is not a valid Multicast group. Table insert failed.",
+             inetFmt(group, s1));
