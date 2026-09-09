@@ -1,9 +1,9 @@
-name: Build Firmware
+# Padavan K2P build for kernel 4.4
+# Based on TurBoTse's modifications
+
+name: Build K2P
 
 on:
-  push:
-    branches:
-      - "*"
   workflow_dispatch:
 
 jobs:
@@ -42,8 +42,11 @@ jobs:
           echo "BUILD_DATE=$(TZ='Asia/Shanghai' date +%Y%m%d)" >> $GITHUB_ENV
 
       - name: Build Firmware
+        run: make ${{ matrix.target }} TOOLCHAIN=${{ matrix.toolchain }}
+
+      - name: Extract Release Body
         run: |
-          make ${{ matrix.target }} TOOLCHAIN=${{ matrix.toolchain }}
+          awk '/固件完整标识：/,/密码：/' trunk/images/image_build.log | grep -v "Build completed at" > release_body.txt
 
       - uses: actions/upload-artifact@main
         with:
@@ -53,12 +56,10 @@ jobs:
       - uses: ncipollo/release-action@main
         with:
           commit: ${{ github.sha }}
-          tag: ${{ env.BUILD_DATE }}
+          tag: ${{ env.BUILD_DATE }}-k2p
+          name: K2P Build ${{ env.BUILD_DATE }}
           artifacts: trunk/images/*.trx
           allowUpdates: true
-          omitBodyDuringUpdate: true
-
-      - uses: Mattraks/delete-workflow-runs@main
-        with:
-          retain_days: 0
-          keep_minimum_runs: 1
+          omitBodyDuringUpdate: false
+          bodyFile: release_body.txt
+          generateReleaseNotes: false
