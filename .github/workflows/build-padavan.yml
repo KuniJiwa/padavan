@@ -1,0 +1,162 @@
+# Padavan 4.4 firmware build
+# Multi-target matrix, plugin selection
+
+name: Build Padavan
+
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: "机型：逗号分隔，最多 2 个（默认 K2P,K2P-USB）"
+        required: true
+        type: string
+        default: 'K2P,K2P-USB'
+      toolchain:
+        description: "选择工具链"
+        required: true
+        type: choice
+        options:
+          - mipsel-linux-musl
+          - mipsel-linux-uclibc
+        default: mipsel-linux-musl
+      plugins:
+        description: '插件开关：逗号分隔 前缀 - 表示关闭（留空走模板默认)'
+        required: false
+        type: string
+        default: 'tcpdump,-vlmcsd,-shadowsocks,-xray,-trojan'
+      customization:
+        description: 'WiFi / IP / 账号 JSON'
+        required: true
+        type: string
+        default: '{"lanip":"192.168.2.1","signaccount":"admin","signpassword":"admin","wifi2gssid":"Padavan","wifi2gpsk":"1234567890","wifi5gssid":"Padavan-5G","wifi5gpsk":"1234567890"}'
+      release:
+        description: "上传到 Release"
+        type: boolean
+        default: true
+      oldworkflow:
+        description: "删除旧 workflow 运行记录"
+        type: boolean
+        default: true
+
+env:
+  TOOLCHAIN: ${{ inputs.toolchain }}
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Parse target list
+        id: set-matrix
+        run: |
+          targets="${{ inputs.targets }}"
+          count=$(echo "$targets" | tr ',' '\n' | grep -c '.')
+          if [ "$count" -gt 2 ]; then
+            echo "::error::最多支持 2 个机型，你输入了 $count 个"
+            exit 1
+          fi
+          if [ "$count" -eq 0 ]; then
+            echo "::error::至少输入 1 个机型"
+            exit 1
+          fi
+          matrix=$(echo "$targets" | jq -R 'split(",") | map({target: .})' | jq -c .)
+          echo "matrix={\"include\": $matrix}" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build ${{ matrix.target }}-${{ inputs.toolchain }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@main
+        with:
+          fetch-depth: 1
+
+      - uses: hendrikmuhs/ccache-action@main
+        with:
+          key: ${{ matrix.target }}-${{ inputs.toolchain }}
+
+      - uses: actions/setup-go@main
+        with:
+          go-version: '1.26.x'
+          check-latest: true
+          cache: false
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bison flex gperf help2man libtool-bin texinfo python3-docutils autopoint gettext ccache \
+            autoconf automake liblzma-dev libltdl-dev liblzo2-dev jq
+          echo "BUILD_DATE=$(TZ='Asia/Shanghai' date +%Y%m%d)" >> $GITHUB_ENV
+
+      - name: Validate JSON
+        run: |
+          jq empty <<< '${{ inputs.customization }}' || { echo "❌ customization JSON 格式错误"; exit 1; }
+
+      - name: Export customization env
+        run: |
+          echo '${{ inputs.customization }}' | jq -r 'to_entries[] | "\(.key)=\(.value)"' | while IFS='=' read -r k v; do
+            echo "${k^^}=$v" >> $GITHUB_ENV
+          done
+
+      - name: Apply IP / account / WiFi
+        run: |
+          chmod +x trunk/custom/scripts/*.sh || true
+          bash trunk/custom/scripts/setip.sh "$LANIP" trunk/user/shared/src/defaults.h trunk/user/www/dict/CN.dict
+          bash trunk/custom/scripts/setaccount.sh "$SIGNACCOUNT" "$SIGNPASSWORD" trunk/user/shared/src/defaults.h
+          bash trunk/custom/scripts/setwifi.sh "$WIFI2GSSID" "$WIFI2GPSK" "$WIFI5GSSID" "$WIFI5GPSK" trunk/user/shared/src/defaults.h
+
+      - name: Apply plugin config
+        run: |
+          python3 trunk/custom/scripts/gen_config.py \
+            --config "trunk/configs/templates/${{ matrix.target }}.config" \
+            --plugins='${{ inputs.plugins }}'
+
+      - name: Build firmware
+        run: |
+          make ${{ matrix.target }} TOOLCHAIN=${{ inputs.toolchain }}
+          mkdir -p trunk/output
+          base="${{ matrix.target }}-4.4-${{ inputs.toolchain }}"
+          base="${base}-${BUILD_DATE}"
+          i=1
+          for f in trunk/images/*.trx; do
+            suffix=""
+            [ $i -gt 1 ] && suffix="-$i"
+            mv "$f" "trunk/output/${base}${suffix}.trx"
+            i=$((i+1))
+          done
+
+      - uses: actions/upload-artifact@main
+        with:
+          name: ${{ matrix.target }}-${{ inputs.toolchain }}-${{ env.BUILD_DATE }}
+          path: trunk/output/*.trx
+
+      - uses: softprops/action-gh-release@master
+        if: ${{ inputs.release }}
+        with:
+          tag_name: Padavan-${{ env.BUILD_DATE }}
+          name: Padavan ${{ env.BUILD_DATE }}
+          body: |
+            编译摘要：
+            - 日期：${{ env.BUILD_DATE }}
+            - 工具链：${{ inputs.toolchain }}
+            - 插件：${{ inputs.plugins }}
+            🌐 LAN 网关 IP：${{ env.LANIP }}
+              - 🔑 账号：${{ env.SIGNACCOUNT }} | 密码：${{ env.SIGNPASSWORD }}
+              - 📶 2.4G WiFi：${{ env.WIFI2GSSID }} | 密码：${{ env.WIFI2GPSK }}
+              - 📶 5G WiFi：${{ env.WIFI5GSSID }} | 密码：${{ env.WIFI5GPSK }}
+          files: trunk/output/*.trx
+
+      - uses: Mattraks/delete-workflow-runs@main
+        if: ${{ inputs.oldworkflow }}
+        with:
+          retain_days: 0
+          keep_minimum_runs: 5
