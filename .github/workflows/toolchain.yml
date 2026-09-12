@@ -1,3 +1,6 @@
+# Padavan toolchain build for MIPS routers
+# For Padavan 4.4 kernel firmware
+
 name: Build Toolchain
 
 on:
@@ -38,4 +41,13 @@ jobs:
           tag: toolchain
           artifacts: toolchain/${{ matrix.target }}.tar.xz
           allowUpdates: true
-          omitBodyDuringUpdate: true
+          prerelease: true
+          body: |
+            MIPS Padavan 编译工具链
+
+            版本：
+            - mipsel-linux-musl（推荐，默认）
+            - mipsel-linux-uclibc
+
+            用途：编译 Padavan 4.4 内核固件
+            适用：MT7620 / MT7621 / MT7628 / RT3883 等 MIPS 路由器
