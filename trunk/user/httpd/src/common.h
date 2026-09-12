@@ -60,6 +60,7 @@ typedef uint8_t u8;
 #define EVM_RESTART_WIFI5		(1ULL << 13)
 #define EVM_RESTART_SWITCH_CFG	(1ULL << 14)
 #define EVM_RESTART_SWITCH_VLAN	(1ULL << 15)
+#define EVM_RESTART_REBOOT		(1ULL << 16)
 #define EVM_RESTART_LAN			(1ULL << 17)
 #define EVM_RESTART_WAN			(1ULL << 18)
 #define EVM_RESTART_IPV6		(1ULL << 19)
@@ -97,6 +98,7 @@ typedef uint8_t u8;
 #define EVM_RESTART_ADBYBY		(1ULL << 51)
 #define EVM_RESTART_ALIDDNS		(1ULL << 52)
 #define EVM_RESTART_FRP		    (1ULL << 53)
+#define EVM_BLOCK_UNSAFE		(1ULL << 55) /* special case */
 #define EVM_RESTART_SMARTDNS	(1ULL << 57)
 #define EVM_RESTART_ADGUARDHOME	(1ULL << 58)
 #define EVM_RESTART_ZEROTIER	(1ULL << 59)
@@ -104,11 +106,6 @@ typedef uint8_t u8;
 #define EVM_RESTART_ALDRIVER	(1ULL << 61)
 #define EVM_RESTART_WIREGUARD	(1ULL << 62)
 #define EVM_RESTART_SQM		    (1ULL << 63)
-
-#define EVM_RESTART_REBOOT		(1ULL << 64)
-
-#define EVM_BLOCK_UNSAFE		(1ULL << 65) /* special case */
-
 
 #define EVT_RESTART_FIREWALL	1
 #define EVT_RESTART_DHCPD		1
