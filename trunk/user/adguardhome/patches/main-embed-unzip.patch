@@ -1,31 +1,68 @@
---- a/main.go
-+++ b/main.go
-@@ -1,7 +1,9 @@
+--- a/main.go	2026-07-12 04:20:21.000000000 +0800
++++ b/main.go	2026-07-12 21:29:56.000000000 +0800
+@@ -1,24 +1,53 @@
+-//go:build !next
+-
  package main
  
  import (
 -	"embed"
+-	// Embed tzdata in binary.
+-	//
+-	// See https://github.com/AdguardTeam/AdGuardHome/issues/6758
 +	"archive/zip"
 +	"bytes"
++	"io/fs"
++	"path"
 +	_ "embed"
+ 	_ "time/tzdata"
  
  	"github.com/AdguardTeam/AdGuardHome/internal/home"
  )
-@@ -10,9 +12,14 @@ import (
- // internal directory and the embed package is unable to embed files located
- // outside of the same or underlying directory.
+ 
+-// Embed the prebuilt client here since we strive to keep .go files inside the
+-// internal directory and the embed package is unable to embed files located
+-// outside of the same or underlying directory.
++//go:embed embed.zip
++var b []byte
++
++type wrapFS struct {
++	reader *zip.Reader
++}
++
++func (w *wrapFS) Open(name string) (fs.File, error) {
++	name = path.Clean(name)
++	return w.reader.Open(name)
++}
++
++func (w *wrapFS) Stat(name string) (fs.FileInfo, error) {
++	f, err := w.Open(name)
++	if err != nil {
++		return nil, err
++	}
++	defer f.Close()
++	return f.Stat()
++}
  
 -//go:embed build
 -var clientBuildFS embed.FS
-+//go:embed embed.zip
-+var b []byte
++func (w *wrapFS) ReadDir(name string) ([]fs.DirEntry, error) {
++	subFS, err := fs.Sub(w, name)
++	if err != nil {
++		return nil, err
++	}
++	return fs.ReadDir(subFS, ".")
++}
++
++func (w *wrapFS) Sub(dir string) (fs.FS, error) {
++	return fs.Sub(w, dir)
++}
  
  func main() {
 -	home.Main(clientBuildFS)
-+	f, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
++	zr, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
 +	if err != nil {
 +		panic(err)
 +	}
-+
-+	home.Main(f)
++	home.Main(&wrapFS{reader: zr})
  }
