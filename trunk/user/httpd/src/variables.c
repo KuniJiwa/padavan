@@ -1212,6 +1212,7 @@
 			{"sdns_exp_ttl_max", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_exp_prefetch_time", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_dualstack_ip_allow_force_aaaa", "", NULL, EVM_RESTART_SMARTDNS},
+			{"sdns_response_mode", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdnse_enable", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdnse_port", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdnse_tcp_server", "", NULL, EVM_RESTART_SMARTDNS},
