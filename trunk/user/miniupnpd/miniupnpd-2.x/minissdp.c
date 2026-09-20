@@ -886,10 +886,10 @@ ProcessSSDPData(int s, const char *bufr, int n,
 			{
 				st = bufr+i+3;
 				st_len = 0;
-				while((*st == ' ' || *st == '\t') && (st < bufr + n))
+				while((st < bufr + n) && (*st == ' ' || *st == '\t'))
 					st++;
-				while(st[st_len]!='\r' && st[st_len]!='\n'
-				     && (st + st_len < bufr + n))
+				while((st + st_len < bufr + n)
+				      && (st[st_len]!='\r' && st[st_len]!='\n'))
 					st_len++;
 				l = st_len;
 				while(l > 0 && st[l-1] != ':')
@@ -1398,4 +1398,3 @@ SubmitServicesToMiniSSDPD(const char * host, unsigned short port) {
  	close(s);
 	return 0;
 }
-
