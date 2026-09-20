@@ -125,7 +125,7 @@ This project is based on original rt-n56u with latest mtk 4.4.198 kernel, which 
     ```
 - Clone source code
   ```sh
-  git clone https://github.com/TurBoTse/padavan.git
+  git clone https://github.com/KuniJiwa/padavan.git
   ```
 - Modify template file and start compiling
   ```sh
