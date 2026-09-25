@@ -255,9 +255,10 @@ ParseHttpHeaders(struct upnphttp * h)
 					p++;
 				while(p[n]>=' ')
 					n++;
-				if((p[0] == '"' && p[n-1] == '"')
-				  || (p[0] == '\'' && p[n-1] == '\''))
+				if((n >= 2) && ((p[0] == '"' && p[n-1] == '"')
+				  || (p[0] == '\'' && p[n-1] == '\'')))
 				{
+					/* remove the quotes */
 					p++; n -= 2;
 				}
 				h->req_soapActionOff = p - h->req_buf;
@@ -1293,4 +1294,3 @@ SendRespAndClose_upnphttp(struct upnphttp * h)
 	}
 	CloseSocket_upnphttp(h);
 }
-

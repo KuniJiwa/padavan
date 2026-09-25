@@ -95,7 +95,7 @@ port_in_use(const char *if_name,
 		char eaddr[68];
 		unsigned tmp_port;
 		if (sscanf(line, "%*d: %64[0-9A-Fa-f]:%x %*x:%*x %*x %*x:%*x "
-				"%*x:%*x %*x %*d %*d %*llu",
+				"%*x:%*x %*x %*d %*d %*s",
 				eaddr, &tmp_port) == 2
 		) {
 			/* TODO add IPV6 support if enabled
