@@ -246,6 +246,7 @@ Adm_System_ftpd_wport=FTP Server Port from WAN:
 Adm_System_trmd_ropen=Access to Transmission RPC from WAN?
 Adm_System_aria_ropen=Access to Aria2 RPC from WAN?
 Adm_System_http_access=Restricting Web Access from LAN:
+Adm_System_wan_policy=Allow WAN Sensitive Operations:
 Adm_System_http_proto=Web Server Protocol:
 Adm_System_http_lport=Port of Web Access from LAN:
 Adm_System_https_lport=Port of HTTPS Web Access from LAN:

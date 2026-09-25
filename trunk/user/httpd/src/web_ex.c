@@ -884,7 +884,8 @@ validate_asp_apply(webs_t wp, int sid)
 		if (!value)
 			continue;
 		
-		if (!get_login_safe() && (v->event_mask & EVM_BLOCK_UNSAFE))
+		if (!get_login_safe() && (v->event_mask & EVM_BLOCK_UNSAFE) &&
+		    !nvram_get_int("http_wan_policy"))
 			continue;
 		
 		event_mask = v->event_mask & ~(EVM_BLOCK_UNSAFE);
@@ -3376,7 +3377,7 @@ static int ej_system_status_hook(int eid, webs_t wp, int argc, char **argv)
 			      "idle: 0x%llx, iowait: 0x%llx, irq: 0x%llx, sirq: 0x%llx, total: 0x%llx}, "
 			"wifi2: {state: %d, guest: %d}, "
 			"wifi5: {state: %d, guest: %d}, "
-			"logmt: %ld }",
+			"logmt: %lld }",
 			LOAD_INT(info.loads[0]), LOAD_FRAC(info.loads[0]),
 			LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]),
 			LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]),
@@ -3386,7 +3387,7 @@ static int ej_system_status_hook(int eid, webs_t wp, int argc, char **argv)
 			cpu.busy, cpu.user, cpu.nice, cpu.system, cpu.idle, cpu.iowait, cpu.irq, cpu.sirq, cpu.total,
 			wifi2.radio, wifi2.ap_guest,
 			wifi5.radio, wifi5.ap_guest,
-			log.st_mtime
+			(long long) log.st_mtime
 		);
 
 	return 0;
@@ -3848,9 +3849,9 @@ nvram_add_group_table(webs_t wp, char *serviceId, struct variable *v, int count)
     	}
     	
     	if (fieldCount==0)
-    	   sprintf(bufs, "%s", buf);
+    	   strcpy(bufs, buf);
     	else
-    	   snprintf(bufs, sizeof(bufs), "%s%s", bufs, buf);
+    	   strncat(bufs, buf, sizeof(bufs) - strlen(bufs) - 1);
     	
     	fieldCount++;
     }

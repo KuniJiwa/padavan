@@ -249,6 +249,7 @@ Adm_System_ftpd_wport=外网访问 FTP 服务器端口:
 Adm_System_trmd_ropen=允许外网访问 Transmission
 Adm_System_aria_ropen=允许外网访问 Aria2
 Adm_System_http_access=限制内网 Web 访问:
+Adm_System_wan_policy=允许外网敏感操作:
 Adm_System_http_proto=Web 服务器协议:
 Adm_System_http_lport=内网 Web 服务端口:
 Adm_System_https_lport=内网 Web 服务 HTTPS 端口:

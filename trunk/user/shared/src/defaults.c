@@ -150,6 +150,7 @@ struct nvram_pair router_defaults[] = {
 	{ "http_username", SYS_USER_ROOT },		/* Username */
 	{ "http_passwd", DEF_ROOT_PASSWORD },	/* Password */
 	{ "http_access", "2" },			/* HTTP access (0: ALL, 1: LAN only, 2: LAN + Wireless MainAP) */
+	{ "http_wan_policy", "0" },		/* WAN sensitive op policy (0: strict, 1: allow) */
 	{ "http_proto", "0" },			/* HTTP proto (0: HTTP, 1: HTTPS, 2: Both) */
 	{ "http_lanport", "80" },		/* HTTP LAN port to listen on */
 	{ "https_lport", "443" },		/* HTTPS LAN port to listen on */

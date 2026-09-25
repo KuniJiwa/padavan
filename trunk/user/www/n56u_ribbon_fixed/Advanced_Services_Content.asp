@@ -365,6 +365,15 @@ function on_ttyd_link(){
                                                 </select>
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <th width="50%"><#Adm_System_wan_policy#></th>
+                                            <td>
+                                                <select name="http_wan_policy" class="input">
+                                                    <option value="0" <% nvram_match_x("", "http_wan_policy", "0","selected"); %>><#checkbox_No#></option>
+                                                    <option value="1" <% nvram_match_x("", "http_wan_policy", "1","selected"); %>><#checkbox_Yes#></option>
+                                                </select>
+                                            </td>
+                                        </tr>
                                     </table>
 
                                     <table width="100%" cellpadding="4" cellspacing="0" class="table" id="tbl_https_certs" style="display:none">

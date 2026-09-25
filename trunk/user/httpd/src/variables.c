@@ -619,6 +619,7 @@
 			{"dnsmasq.dnsmasq.servers", "File", NULL, EVM_RESTART_DHCPD},
 			{"dnsmasq.dhcp.conf", "File", NULL, EVM_RESTART_DHCPD},
 			{"http_access", "", NULL, EVM_RESTART_HTTPD},
+			{"http_wan_policy", "", NULL, FALSE},
 			{"http_proto", "", NULL, EVM_RESTART_HTTPD},
 			{"http_lanport", "", NULL, EVM_RESTART_HTTPD},
 #if defined (SUPPORT_HTTPS)
