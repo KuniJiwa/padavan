@@ -1,4 +1,4 @@
-var helpcontent = new Array(25);
+var helpcontent = new Array(26);
 var help_enable = '<% nvram_get_x("", "help_enable"); %>';
 
 helpcontent[0] = new Array("");
@@ -185,6 +185,26 @@ helpcontent[24] = new Array("",
 				"<#LANHostConfig_x_DDNSHostNames_itemdesc#>",
 				"<#LANHostConfig_x_DDNSWildcard_itemdesc#>",
 				"<#LANHostConfig_x_DDNSStatus_itemdesc#>");
+
+// SmartDNS
+helpcontent[25] = new Array("",
+    "【无】端口为 53 时独占 53，不修改 dnsmasq 上游、不加 iptables 规则；【作为dnsmasq的上游服务器】dnsmasq 把请求转给 SmartDNS；【重定向53端口到SmartDNS】iptables 劫持发往 53 的请求到 SmartDNS。",
+    "可选 ping、tcp:端口、tcp-syn:端口、none，多个用逗号分隔。",
+    "IPv4 比 IPv6 快时，对 AAAA 请求返回 SOA，屏蔽该域名的 IPv6。",
+    "支持单个、范围、逗号分隔，如 65 28、65-68。",
+    "缓存快过期时提前查询，加速域名响应。",
+    "有请求时先回应过期记录，同时后台查询新结果，避免等待。",
+    "用过期数据回复时使用的 TTL 值，单位秒。",
+    "可选 off、fatal、error、warn、notice、info、debug。",
+    "读取 dnsmasq 或 odhcpd 的租约文件解析本地主机名。",
+    "进程故障时生成 coredump 文件，用于调试定位。",
+    "测速失败时，将查询结果加入对应的 IPset 集合。",
+    "使用指定服务器组查询，比如 office、home。可用于单独解析 gfwlist，如果不需要配合 SS 解析 gfwlist，可以不填。",
+    "白名单：只接受指定范围的 IP；黑名单：丢弃指定范围的 IP。",
+    "开启后此监听口不应用 ipset 规则（域名解析结果不写入 ipset 集合）。默认关闭，对当前监听口，该规则生效。",
+    "开启后此监听口不应用 address 规则（不再强制域名返回指定 IP）。默认关闭，对当前监听口，该规则生效。",
+    "开启后此监听口不应用 nameserver 规则（不再指定域名使用哪个上游组）。默认关闭，对当前监听口，该规则生效。",
+    "开启后此监听口不应用 SOA (#) 规则（不再屏蔽指定域名）。默认关闭，对当前监听口，该规则生效。");
 
 
 function openTooltip(obj, hint_array_id, hint_show_id)

@@ -137,10 +137,11 @@
 			{"sdnss_ip_x", "24", NULL, FALSE},
 			{"sdnss_port_x", "24", NULL, FALSE},
 			{"sdnss_type_x", "24", NULL, FALSE},
-			{"sdnss_ipc_x", "24", NULL, FALSE},
 			{"sdnss_named_x", "24", NULL, FALSE},
-			{"sdnss_non_x", "24", NULL, FALSE},
+			{"sdnss_ipc_x", "24", NULL, FALSE},
 			{"sdnss_ipset_x", "24", NULL, FALSE},
+			{"sdnss_non_x", "24", NULL, FALSE},
+			{"sdnss_extra_x", "24", NULL, FALSE},
 			{0,0,0,0}
 		};
 
@@ -1190,6 +1191,7 @@
 			{"sdns_redirect", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_cache", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_cache_persist", "", NULL, EVM_RESTART_SMARTDNS},
+			{"sdns_cache_checkpoint_time", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_tcp_idle_time", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_rr_ttl", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_rr_ttl_min", "", NULL, EVM_RESTART_SMARTDNS},
@@ -1229,6 +1231,9 @@
 			{"sdns_adblock_url","",NULL, FALSE},
 			{"sdns_white", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_black", "", NULL, EVM_RESTART_SMARTDNS},
+			{"sdns_log_level", "", NULL, EVM_RESTART_SMARTDNS},
+			{"sdns_log_num", "", NULL, EVM_RESTART_SMARTDNS},
+			{"sdns_dnsmasq_lease", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_coredump", "", NULL, EVM_RESTART_SMARTDNS},	
 			{"sdns_staticnum_x", "", NULL, EVM_RESTART_SMARTDNS},
 			{"scripts.smartdns_address.conf", "File", NULL, EVM_RESTART_SMARTDNS},
