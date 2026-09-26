@@ -33,6 +33,7 @@ $j(document).ready(function() {
 <script>
 
 <% login_state_hook(); %>
+var wan_policy = "<% nvram_get_x("", "http_wan_policy"); %>";
 
 function initial(){
 	show_banner(1);
@@ -65,7 +66,7 @@ function initial(){
 
 	document.form.http_passwd2.value = "";
 
-	if (login_safe()){
+	if (login_safe() || wan_policy == "1"){
 		showhide_div('row_user', 1);
 		showhide_div('row_pass1', 1);
 		showhide_div('row_pass2', 1);

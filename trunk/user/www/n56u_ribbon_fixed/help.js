@@ -176,7 +176,8 @@ helpcontent[23] = new Array("",
 				"<#TweaksWdg_desc#>",
 				"<#Adm_Svc_vlmcsd_desc#>",
 				"<#Adm_Svc_iperf3_desc#>",
-				"<#Adm_Svc_ttyd_desc#>");
+				"<#Adm_Svc_ttyd_desc#>",
+				"<#Adm_System_wan_policy_desc#>");
 
 // DDNS
 helpcontent[24] = new Array("",

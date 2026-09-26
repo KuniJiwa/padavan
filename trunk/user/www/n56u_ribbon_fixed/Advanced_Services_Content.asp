@@ -39,6 +39,7 @@ $j(document).ready(function() {
 <script>
 
 <% login_state_hook(); %>
+var wan_policy = "<% nvram_get_x("", "http_wan_policy"); %>";
 <% openssl_util_hook(); %>
 var lan_ipaddr = '<% nvram_get_x("", "lan_ipaddr"); %>';
 var http_proto = '<% nvram_get_x("", "http_proto"); %>';
@@ -69,7 +70,7 @@ function initial(){
 		showhide_div('row_https_clist', 0);
 		textarea_https_enabled(0);
 	}else{
-		if (openssl_util_found() && login_safe()) {
+		if (openssl_util_found() && (login_safe() || wan_policy == "1")) {
 			if(!support_openssl_ec()) {
 				var o = document.form.https_gen_rb;
 				o.remove(3);
@@ -164,7 +165,7 @@ function http_proto_change(){
 	showhide_div('row_http_lport', v1);
 	showhide_div('row_https_lport', v2);
 
-	if (!login_safe())
+	if (!login_safe() && wan_policy != "1")
 		v2 = 0;
 
 	showhide_div('row_https_clist', v2);
@@ -231,7 +232,7 @@ function sshd_auth_change(){
 	var auth = document.form.sshd_enable.value;
 	var v = (auth != "0") ? 1 : 0;
 	showhide_div('row_ssh_keys', v);
-	if (!login_safe())
+	if (!login_safe() && wan_policy != "1")
 		v = 0;
 	textarea_sshd_enabled(v);
 }
@@ -245,7 +246,7 @@ function change_wins_enabled(){
 function change_crond_enabled(){
 	var v = document.form.crond_enable[0].checked;
 	showhide_div('row_crontabs', v);
-	if (!login_safe())
+	if (!login_safe() && wan_policy != "1")
 		v = 0;
 	textarea_crond_enabled(v);
 }
@@ -362,6 +363,15 @@ function on_ttyd_link(){
                                                     <option value="0" <% nvram_match_x("", "http_access", "0","selected"); %>><#checkbox_No#></option>
                                                     <option value="1" <% nvram_match_x("", "http_access", "1","selected"); %>>Wired clients only</option>
                                                     <option value="2" <% nvram_match_x("", "http_access", "2","selected"); %>>Wired and MainAP clients (*)</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="50%"><a class="help_tooltip" href="javascript:void(0);" onmouseover="openTooltip(this,23,5);"><#Adm_System_wan_policy#></a></th>
+                                            <td>
+                                                <select name="http_wan_policy" class="input">
+                                                    <option value="0" <% nvram_match_x("", "http_wan_policy", "0","selected"); %>><#checkbox_No#></option>
+                                                    <option value="1" <% nvram_match_x("", "http_wan_policy", "1","selected"); %>><#checkbox_Yes#></option>
                                                 </select>
                                             </td>
                                         </tr>
