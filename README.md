@@ -2,10 +2,17 @@
 
 This project is based on original rt-n56u with latest mtk 4.4.198 kernel, which is fetch from D-LINK GPL code.
 
+#### 插件填写说明
+默认关。填小写名开启，逗号隔开。其他选项对应设备配置文件，前面加 - 关闭。例：smartdns,xray,-trojan
+
+- 代理/穿透/组网　shadowsocks, trojan, xray, wireguard, zerotier, frpc, frps, ddnsto, srelay, socat
+- DNS/动态域名　smartdns, dnsforwarder, adguardhome, adbyby, aliddns
+- 网络工具　aria, tcpdump, iperf3, mtr
+- 系统/其他　ttyd, htop, nano, vlmcsd
+
 #### Extra functions / changes
 - Adding user/chinadns-ng , and fix shadowsocks + chinadns-ng using local domain whitellist.
 - AP Relay auto-daemon
-
 
 #### SS/SSR
 - Transparent proxy (iptables) wasn't cleaned completely, this issue is fixed.
@@ -125,7 +132,7 @@ This project is based on original rt-n56u with latest mtk 4.4.198 kernel, which 
     ```
 - Clone source code
   ```sh
-  git clone https://github.com/TurBoTse/padavan.git
+  git clone https://github.com/KuniJiwa/padavan.git
   ```
 - Modify template file and start compiling
   ```sh
