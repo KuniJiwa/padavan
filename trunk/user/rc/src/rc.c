@@ -43,6 +43,7 @@
 #include "gpio_pins.h"
 #include "switch.h"
 #include <ralink_priv.h>
+#include <flash_mtd.h>
 #include <gpioutils.h>
 
 extern struct nvram_pair router_defaults[];
@@ -551,7 +552,7 @@ storage_save_time(time_t delta)
 	if (now_tm.tm_year > (SYS_START_YEAR - 1900)) {
 		fp = fopen("/etc/storage/system_time", "w");
 		if (fp) {
-			fprintf(fp, "%lu", (now_time + delta));
+			fprintf(fp, "%llu", (unsigned long long)(now_time + delta));
 			fclose(fp);
 		}
 	}
