@@ -10,7 +10,7 @@ body.body_iframe{
 }
 
 .wrapper {
-    width: 1200px;
+    width: 960px;
     margin: 0 auto;
 }
 
@@ -65,6 +65,18 @@ body.body_iframe{
     overflow:hidden;
     background: url("/bootstrap/img/loading_bg.png") repeat scroll 50% 50% #AAAAAA;
     opacity: 0.95;
+}
+
+#Loading, .loading-fixed {
+    position: fixed;
+}
+
+#Loading > center, .loading-fixed > center {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
 }
 
 .popup_bar_bg {
@@ -480,6 +492,14 @@ a.help_tooltip:hover {text-decoration: none; border-bottom: 1px dotted grey; col
     overflow:hidden;
 }
 
+textarea {
+    resize: vertical;
+}
+
+#log_area {
+    resize: none;
+}
+
 textarea[readonly] {
     cursor: default;
 }
@@ -496,7 +516,7 @@ textarea[readonly] {
 .syslog_panel {
     position: absolute;
     padding: 20px;
-    width: 1200px;
+    width: 960px;
     background: #f5f5f5;
     font-family: Georgia;
     opacity: 0;

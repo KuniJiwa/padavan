@@ -1311,6 +1311,11 @@ jQuery(document).ready(function(){
                 fixedPosition: true
             });
 
+            $j(window).on('resize', function(){
+                var offsetLeft = $j('.wrapper').offset().left;
+                $j('.syslog_panel').css('left', (offsetLeft + 5) + 'px');
+            });
+
             setLogData();
             showClockLogArea();
         }

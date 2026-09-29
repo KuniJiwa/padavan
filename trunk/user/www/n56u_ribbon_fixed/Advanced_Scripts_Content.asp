@@ -164,7 +164,7 @@ function done_validating(action){
                                             <td style="padding-bottom: 0px;">
                                                 <a href="javascript:spoiler_toggle('script4')"><span><#RunEzBtns#></span></a>
                                                 <div id="script4" style="display:none;">
-                                                    <textarea rows="24" wrap="off" spellcheck="false" maxlength="4096" class="span12" name="scripts.ez_buttons_script.sh" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("scripts.ez_buttons_script.sh",""); %></textarea>
+                                                    <textarea rows="24" wrap="off" spellcheck="false" maxlength="10240" class="span12" name="scripts.ez_buttons_script.sh" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("scripts.ez_buttons_script.sh",""); %></textarea>
                                                 </div>
                                             </td>
                                         </tr>

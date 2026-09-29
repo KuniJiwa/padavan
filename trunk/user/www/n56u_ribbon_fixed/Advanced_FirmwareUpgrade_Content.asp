@@ -109,9 +109,9 @@ function submitInternet(v){
 <body onload="initial();">
 
 <div class="wrapper">
-    <div id="LoadingBar" class="popup_bg">
+    <div id="LoadingBar" class="popup_bg loading-fixed">
         <center>
-        <div class="container-fluid" style="margin-top: 150px;">
+        <div class="container-fluid">
             <div class="well" style="background-color: #212121; width: 60%;">
                 <div class="progress" style="max-width: 450px; text-align: left;">
                     <div class="bar" id="proceeding_img"><span id="proceeding_img_text"></span></div>

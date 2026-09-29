@@ -55,26 +55,11 @@ function LoadingProgress(seconds){
 }
 
 function showLoading(seconds, flag){
-	if(window.scrollTo)
-		window.scrollTo(0,0);
-
 	disableCheckChangedStatus();
 
 	// hide IE scrollbars
 	htmlbodyforIE = document.getElementsByTagName("html");
 	htmlbodyforIE[0].style.overflow = "hidden";
-
-	winW_H();
-	var blockmarginTop;
-	var sheight = document.documentElement.scrollHeight;
-	var cheight = document.documentElement.clientHeight
-
-	blockmarginTop = (navigator.userAgent.indexOf("Safari")>=0)?(sheight-cheight<=0)?200:sheight-cheight+200:document.documentElement.scrollTop+200;
-
-	//Lock modified it for Safari4 display issue.
-	$("loadingBlock").style.marginTop = blockmarginTop+"px";
-	$("Loading").style.width = winW+"px";
-	$("Loading").style.height = winH+"px";
 
 	loadingSeconds = seconds;
 	progress = 100/loadingSeconds;
@@ -83,19 +68,11 @@ function showLoading(seconds, flag){
 }
 
 function showLoadingBar(seconds){
-	if(window.scrollTo)
-		window.scrollTo(0,0);
-
 	disableCheckChangedStatus();
 
 	// hide IE scrollbars
 	htmlbodyforIE = document.getElementsByTagName("html");
 	htmlbodyforIE[0].style.overflow = "hidden";
-
-	winW_H();
-
-	$("LoadingBar").style.width = winW+"px";
-	$("LoadingBar").style.height = winH+"px";
 
 	loadingSeconds = seconds;
 	progress = 100/loadingSeconds;
