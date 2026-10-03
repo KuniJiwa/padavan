@@ -465,7 +465,7 @@ http_login(const uaddr *ip_now)
 
 	login_timestamp = uptime();
 
-	sprintf(s_lts, "%lu", login_timestamp);
+	sprintf(s_lts, "%llu", (unsigned long long)login_timestamp);
 	nvram_set_temp("login_timestamp", s_lts);
 }
 
@@ -620,7 +620,7 @@ send_headers( int status, const char *title, const char *extra_header, const cha
 			fprintf( conn_fp, "Last-Modified: %s\r\n", timebuf );
 		}
 		if (st->st_size > 0)
-			fprintf( conn_fp, "Content-Length: %lu\r\n", st->st_size );
+			fprintf( conn_fp, "Content-Length: %llu\r\n", (unsigned long long)st->st_size );
 	}
 	if (mime_type)
 		fprintf( conn_fp, "Content-Type: %s\r\n", mime_type );
