@@ -1,4 +1,4 @@
-var helpcontent = new Array(25);
+var helpcontent = new Array(26);
 var help_enable = '<% nvram_get_x("", "help_enable"); %>';
 
 helpcontent[0] = new Array("");
@@ -186,6 +186,29 @@ helpcontent[24] = new Array("",
 				"<#LANHostConfig_x_DDNSHostNames_itemdesc#>",
 				"<#LANHostConfig_x_DDNSWildcard_itemdesc#>",
 				"<#LANHostConfig_x_DDNSStatus_itemdesc#>");
+
+// SmartDNS
+helpcontent[25] = new Array("",
+    "选【无】：SmartDNS 只监听自己端口；选【作为 dnsmasq 的上游服务器】：dnsmasq 把查询转发给 SmartDNS；选【重定向 53 端口到 SmartDNS】：iptables 劫持 53 到 SmartDNS。注意：端口为 53 时，后两者无效，会自动改为【无】。",
+    "测速方式，可选 ping、tcp:端口、tcp-syn:端口、none，多个用逗号分隔。写入默认组，对所有未单独指定测速的域名生效。",
+    "支持单个、范围、逗号分隔，如 65 28、65-68。",
+    "缓存快过期时提前查询，加速域名响应。",
+    "有请求时先回应过期记录，同时后台查询新结果，避免等待。",
+    "用过期数据回复时使用的 TTL 值，单位秒。",
+    "off=关闭；fatal=致命错误；error=错误；warn=警告；notice=重要通知；info=常规信息；debug=调试详情。级别递增，日志逐级增多。",
+    "读取 dnsmasq 或 odhcpd 的租约文件解析本地主机名。",
+    "故障时生成 coredump，最大 4 MiB，重启后清除",
+    "输入域名：该域名（含子域）的解析结果写入名为 smartdns 的 ipset 集合；输入 IP：直接把该 IP 加入集合。",
+    "使用指定服务器组查询，比如 office、home。可用于单独解析 gfwlist，如果不需要配合 SS 解析 gfwlist，可以不填。",
+    "白名单：只接受指定范围的 IP；黑名单：丢弃指定范围的 IP。",
+    "开启后本监听口跳过 ipset 写入（域名解析结果不加入集合），此时【设置 ipset 超时】对本监听口无效。默认关闭。",
+    "开启后此监听口不应用 address 规则（不再强制域名返回指定 IP）。默认关闭，对当前监听口，该规则生效。",
+    "开启后此监听口不应用 nameserver 规则（不再指定域名使用哪个上游组）。默认关闭，对当前监听口，该规则生效。",
+    "开启后此监听口不应用 SOA (#) 规则（不再屏蔽指定域名）。默认关闭，对当前监听口，该规则生效。",
+    "过期缓存最长可用时长，单位秒。0 表示不限时。",
+    "缓存定期写入持久化文件的间隔，单位秒。0 表示禁用周期持久化。需开启【是否持久化缓存】。",
+    "启用后把 chnroute.txt 的中国 IP 段设为全局白名单，解析结果只接受其中的 IP，其余丢弃。需 chnroute.txt 存在。",
+    "启用后把 chnroute.txt 的中国 IP 段设为全局黑名单，解析结果中属于其中的 IP 会被丢弃。需 chnroute.txt 存在。");
 
 
 function openTooltip(obj, hint_array_id, hint_show_id)
