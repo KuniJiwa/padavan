@@ -1,0 +1,34 @@
+From 01b02bac5c503d2c13b1986f1c5be7c5d65799b9 Mon Sep 17 00:00:00 2001
+From: KuniJiwa <45271734+KuniJiwa@users.noreply.github.com>
+Date: Wed, 26 Aug 2026 12:24:12 +0800
+Subject: Fix spurious ENOENT warning for MRT_DEL_MFC in delMRoute()
+
+---
+ src/mroute-api.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/src/mroute-api.c b/src/mroute-api.c
+index 478ae3b960b672c7290b5ae2fc43f209a1ad7845..5db2b9164c5b80610df8106ceae667de8440bf4a 100644
+--- a/src/mroute-api.c
++++ b/src/mroute-api.c
+@@ -227,9 +227,14 @@ int delMRoute( struct MRouteDesc *Dp )
+ 
+     rc = setsockopt( MRouterFD, IPPROTO_IP, MRT_DEL_MFC,
+                     (void *)&CtlReq, sizeof( CtlReq ) );
+-    if (rc)
+-        my_log( LOG_WARNING, errno, "MRT_DEL_MFC" );
+-
++if (rc < 0)
++    {
++        /* ENOENT: kernel MFC entry has already expired, suppress harmless warning */
++        if (errno != ENOENT)
++        {
++            my_log( LOG_WARNING, errno, "MRT_DEL_MFC" );
++        }
++    }
+     return rc;
+ }
+ 
+-- 
+2.34.1
+
