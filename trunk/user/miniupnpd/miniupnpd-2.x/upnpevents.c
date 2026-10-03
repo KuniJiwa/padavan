@@ -442,19 +442,34 @@ static void upnp_event_prepare(struct upnp_event_notify * obj)
 		l = 0;
 	}
 	obj->buffersize = 1024;
-	obj->buffer = malloc(obj->buffersize);
-	if(!obj->buffer) {
-		syslog(LOG_ERR, "%s: malloc returned NULL", "upnp_event_prepare");
-		if(xml) {
-			free(xml);
+	for (;;) {
+		obj->buffer = malloc(obj->buffersize);
+		if(!obj->buffer) {
+			syslog(LOG_ERR, "%s: malloc returned NULL", "upnp_event_prepare");
+			if(xml) {
+				free(xml);
+			}
+			obj->state = EError;
+			return;
 		}
-		obj->state = EError;
-		return;
+		obj->tosend = snprintf(obj->buffer, obj->buffersize, notifymsg,
+		                       obj->path, obj->addrstr, obj->portstr, l+2,
+		                       obj->sub->uuid, obj->sub->seq,
+		                       l, xml);
+		if(obj->tosend < 0) {
+			syslog(LOG_ERR, "%s: snprintf() failed", "upnp_event_prepare");
+			if(xml) {
+				free(xml);
+			}
+			obj->state = EError;
+			return;
+		} else if(obj->tosend < obj->buffersize) {
+			break;	/* the buffer was large enough */
+		}
+		/* Try again with a buffer big enough. */
+		free(obj->buffer);
+		obj->buffersize = obj->tosend + 1;
 	}
-	obj->tosend = snprintf(obj->buffer, obj->buffersize, notifymsg,
-	                       obj->path, obj->addrstr, obj->portstr, l+2,
-	                       obj->sub->uuid, obj->sub->seq,
-	                       l, xml);
 	if(xml) {
 		free(xml);
 		xml = NULL;
@@ -565,6 +580,9 @@ void upnpevents_selectfds(fd_set *readset, fd_set *writeset, int * max_fd)
 				upnp_event_notify_connect(obj);
 				if(obj->state != EConnecting)
 					break;
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+				__attribute__ ((fallthrough));
+#endif
 			case EConnecting:
 			case ESending:
 				FD_SET(obj->s, writeset);
@@ -663,4 +681,3 @@ void write_events_details(int s) {
 #endif
 
 #endif
-
