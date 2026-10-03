@@ -18,13 +18,14 @@
 <script>
 
 <% login_state_hook(); %>
+var wan_policy = "<% nvram_get_x("", "http_wan_policy"); %>";
 
 function initial(){
 	show_banner(1);
 	show_menu(5,8,2);
 	show_footer();
 
-	if (!login_safe())
+	if (!login_safe() && wan_policy != "1")
 		textarea_scripts_enabled(0);
 
 	if (get_ap_mode()){

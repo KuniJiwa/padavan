@@ -884,7 +884,8 @@ validate_asp_apply(webs_t wp, int sid)
 		if (!value)
 			continue;
 		
-		if (!get_login_safe() && (v->event_mask & EVM_BLOCK_UNSAFE))
+		if (!get_login_safe() && (v->event_mask & EVM_BLOCK_UNSAFE) &&
+		    !nvram_get_int("http_wan_policy"))
 			continue;
 		
 		event_mask = v->event_mask & ~(EVM_BLOCK_UNSAFE);
@@ -945,6 +946,11 @@ validate_asp_apply(webs_t wp, int sid)
 		
 		nvram_set(v->name, value);
 		nvram_modified = 1;
+
+		if (!strcmp(v->name, "http_wan_policy")) {
+			httpd_log("WAN sensitive op policy: %s.",
+			          !strcmp(value, "1") ? "enabled" : "disabled");
+		}
 		
 		if (!strcmp(v->name, "http_username"))
 			user_changed = 1;

@@ -46,6 +46,7 @@ ip6_service = '<% nvram_get_x("", "ip6_service"); %>';
 var ACLList = [<% get_nvram_list("LANHostConfig", "VPNSACLList", "vpns_pass_x"); %>];
 
 <% login_state_hook(); %>
+var wan_policy = "<% nvram_get_x("", "http_wan_policy"); %>";
 <% openssl_util_hook(); %>
 <% openvpn_srv_cert_hook(); %>
 
@@ -66,7 +67,7 @@ function initial(){
 		}
 	}
 
-	if (openssl_util_found() && login_safe()) {
+	if (openssl_util_found() && (login_safe() || wan_policy == "1")) {
 		if (!support_openssl_ec()) {
 			var o = document.form.vpns_gen_rb;
 			for (var i=0;i<5;i++) {
@@ -232,7 +233,7 @@ function done_validating(action){
 
 function textarea_ovpn_enabled(v){
 	inputCtrl(document.form['ovpnsvr.server.conf'], v);
-	if (!login_safe())
+	if (!login_safe() && wan_policy != "1")
 		v=0;
 	inputCtrl(document.form['ovpnsvr.ca.crt'], v);
 	inputCtrl(document.form['ovpnsvr.dh1024.pem'], v);
@@ -301,7 +302,7 @@ function change_vpns_type(){
 		inputCtrl(document.form.vpns_pass_x_0, 0);
 		document.form.vpns_pass_x_0.value = "";
 		
-		if (openssl_util_found() && login_safe() && openvpn_srv_cert_found()) {
+		if (openssl_util_found() && (login_safe() || wan_policy == "1") && openvpn_srv_cert_found()) {
 			if (!support_openssl_ec()) {
 				var o = document.form.vpns_exp_rb;
 				for (var i=0;i<5;i++) o.remove(3);
@@ -404,7 +405,7 @@ function change_vpns_ov_atls() {
 	var v = (document.form.vpns_ov_atls.value != "0") ? 1 : 0;
 
 	showhide_div('row_ta_key', v);
-	if (!login_safe())
+	if (!login_safe() && wan_policy != "1")
 		v=0;
 	inputCtrl(document.form['ovpnsvr.ta.key'], v);
 
@@ -414,7 +415,7 @@ function change_vpns_ov_tcv2() {
 	var v = (document.form.vpns_ov_tcv2.value == "1") ? 1 : 0;
 
 	showhide_div('row_stc2_key', v);
-	if (!login_safe())
+	if (!login_safe() && wan_policy != "1")
 		v=0;
 	inputCtrl(document.form['ovpnsvr.stc2.key'], v);
 }
@@ -600,7 +601,7 @@ function showACLList(vnet_show,rnet_show,is_openvpn){
 			}
 			
 			if (is_openvpn){
-				if (openssl_util_found() && openvpn_srv_cert_found() && login_safe())
+				if (openssl_util_found() && openvpn_srv_cert_found() && (login_safe() || wan_policy == "1"))
 					acl_pass = '<a href="javascript:export_client_ovpn(\'' + ACLList[i][0] + '\');"><#VPNS_Export#></a>';
 			}else
 				acl_pass = '*****';
